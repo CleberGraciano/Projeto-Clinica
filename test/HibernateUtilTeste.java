@@ -1,5 +1,4 @@
 
-
 import org.hibernate.Session;
 import org.junit.Test;
 

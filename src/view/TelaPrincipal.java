@@ -145,7 +145,7 @@ public class TelaPrincipal extends javax.swing.JFrame {
 
         jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/Background.jpg"))); // NOI18N
         getContentPane().add(jLabel1);
-        jLabel1.setBounds(0, -10, 1140, 480);
+        jLabel1.setBounds(0, -10, 1140, 490);
 
         jMenuCadastros.setText("Cadastros");
 

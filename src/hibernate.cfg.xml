@@ -27,6 +27,7 @@
 		<mapping class="modelBeans.Estado"/>
 		<mapping class="modelBeans.Cidade"/>
                 <mapping class="modelBeans.Pessoa"/>
+                <!-- <mapping class="modelBeans.MedicoBean"/> -->
                
                 
 

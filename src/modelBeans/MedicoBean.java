@@ -7,11 +7,26 @@ package modelBeans;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Transient;
 
 @SuppressWarnings("serial")
-@Entity
+@Entity (name = "medicos")
 public class MedicoBean extends GenericDomain {
 
+  
+
+    @Column(length = 50, nullable = false, name = "nome_medico")
+    private String nome;
+
+    @Column(length = 50, nullable = false, name = "especializacao_medico")
+    private String especialidade;
+    
+    @Column(length = 20, nullable = false, name = "crm_medico")
+    private Integer crm;
+    
+   
+    private String pesquisa;
+    
     /**
      * @return the pesquisa
      */
@@ -25,18 +40,6 @@ public class MedicoBean extends GenericDomain {
     public void setPesquisa(String pesquisa) {
         this.pesquisa = pesquisa;
     }
-
-    @Column(length = 32, nullable = false)
-    private String nome;
-    
-    @Column(length = 50, nullable = false)
-    private String especialidade;
-    
-    @Column(length = 20, nullable = false)
-    private int crm;
-    private String pesquisa;
-    
-   
 
     /**
      * @return the nome
