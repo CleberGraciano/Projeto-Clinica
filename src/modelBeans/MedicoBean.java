@@ -13,7 +13,7 @@ import javax.persistence.Transient;
 @Entity (name = "medicos")
 public class MedicoBean extends GenericDomain {
 
-  
+    private Integer cod_medico;
 
     @Column(length = 50, nullable = false, name = "nome_medico")
     private String nome;
@@ -26,6 +26,8 @@ public class MedicoBean extends GenericDomain {
     
    
     private String pesquisa;
+    
+    
     
     /**
      * @return the pesquisa
@@ -81,6 +83,20 @@ public class MedicoBean extends GenericDomain {
      */
     public void setCrm(int crm) {
         this.crm = crm;
+    }
+
+    /**
+     * @return the cod_medico
+     */
+    public Integer getCod_medico() {
+        return cod_medico;
+    }
+
+    /**
+     * @param cod_medico the cod_medico to set
+     */
+    public void setCod_medico(Integer cod_medico) {
+        this.cod_medico = cod_medico;
     }
     
    

@@ -25,7 +25,7 @@ public class UsuarioDao {
             Logger.getLogger(UsuarioDao.class.getName()).log(Level.SEVERE, null, ex);
         }
         
-        
+        conex.desconecta();
     }
     
     
