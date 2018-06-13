@@ -5,16 +5,87 @@
  */
 package view;
 
+import Conection.ConexaoBD;
+import Dao.UsuarioDao;
+import java.awt.Image;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.ImageIcon;
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
+import javax.swing.ListSelectionModel;
+import modelBeans.TabelaBean;
+import modelBeans.Usuario;
+
 /**
  *
  * @author Usuario
  */
 public class FormUsuario extends javax.swing.JFrame {
+    
+    Usuario usuario = new Usuario();
+    UsuarioDao control = new UsuarioDao();
+    ConexaoBD conex = new ConexaoBD();
+    String nomeUser = System.getProperty("user.name"); 
+    int flag = 0;
+    String sql="select * from usuarios order by nome_usuario";
+    
+    
 
     
     
     public FormUsuario() {
         initComponents();
+        preencherTabela(sql);
+    }
+    
+    public void preencherTabela (String sql){
+        ArrayList dados = new ArrayList();
+        
+        String [] colunas = new String[] {"ID","Nome Usuario","Tipo"};
+        
+        conex.conexao();
+        
+        conex.executaSql(sql);
+        try{
+            conex.rs.first();//Setando o primeiro registro
+            do{
+                
+                //Fazendo as linhas da tabela, ele vai pesquisar todos os dados do banco 
+                dados.add(new Object[] {conex.rs.getInt("cod_usuario"),conex.rs.getString("nome_usuario"),conex.rs.getString("tipo_usuario")}); //GetInt primeiro, porque o primeiro registo é o Codigo e ele é inteiro
+                
+                
+            } while(conex.rs.next()); // Enquanto houver dados ele vai ficar percorrendo este registro
+            
+        
+            
+            
+        }catch (SQLException ex){
+            JOptionPane.showMessageDialog(rootPane, "Erro ao preencher arraylist"+ex);
+            ex.printStackTrace();
+        }
+        
+        TabelaBean tabelaBean = new TabelaBean(dados, colunas);//Instanciei e passei como paremetros minha quantidade de linhas e quantidade de colunas
+        jTableUsuarios.setModel(tabelaBean);
+        jTableUsuarios.getColumnModel().getColumn(0).setPreferredWidth(50);//Colocando o tamanho da tabela no caso 23 e o 0 é porque é o primeiro registro por ser um array e ele começa a contar do 0, onde 0 é o codigo_medico com largura 23
+        jTableUsuarios.getColumnModel().getColumn(0).setResizable(false);//comando para não permitir que altere o tamanho da coluna, fica desabilitado
+        jTableUsuarios.getColumnModel().getColumn(1).setPreferredWidth(300);//Campo Nome
+        jTableUsuarios.getColumnModel().getColumn(1).setResizable(false);//Campo Nome
+        jTableUsuarios.getColumnModel().getColumn(2).setPreferredWidth(290);//Campo Especialização
+        jTableUsuarios.getColumnModel().getColumn(2).setResizable(false);//Campo Especialização
+        jTableUsuarios.getTableHeader().setReorderingAllowed(false);//não é possivél reordenar o cabeçalho
+        jTableUsuarios.setAutoResizeMode(jTableUsuarios.AUTO_RESIZE_OFF);//a TABELA NÃO PODE SER REDIMENCIONADA 
+        jTableUsuarios.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);//só é possivel selecionar um dado na tabela por vez
+                
+        conex.desconecta();
     }
 
     /**
@@ -33,7 +104,7 @@ public class FormUsuario extends javax.swing.JFrame {
         jLabel6 = new javax.swing.JLabel();
         jPasswordFieldSenhaUsuario = new javax.swing.JPasswordField();
         jPasswordFieldConfirmeSenha = new javax.swing.JPasswordField();
-        jTextFieldUsuario = new javax.swing.JTextField();
+        jTextFieldNomeUsuario = new javax.swing.JTextField();
         jComboBoxTipoUsuario = new javax.swing.JComboBox<>();
         jButtonNovoUsuario = new javax.swing.JButton();
         jButtonSalvarUsuario = new javax.swing.JButton();
@@ -43,11 +114,14 @@ public class FormUsuario extends javax.swing.JFrame {
         jTextFieldPesquisar = new javax.swing.JTextField();
         jButtonPesquisarUsuario = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
-        jLabel8 = new javax.swing.JLabel();
-        jButton1 = new javax.swing.JButton();
+        jTableUsuarios = new javax.swing.JTable();
+        jLabelFoto = new javax.swing.JLabel();
+        jButtonFoto = new javax.swing.JButton();
+        jTextFieldCod_Usuario = new javax.swing.JTextField();
+        jLabel2 = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
+        jTextFieldCaminhoFoto = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setResizable(false);
@@ -70,7 +144,7 @@ public class FormUsuario extends javax.swing.JFrame {
             }
         });
 
-        jComboBoxTipoUsuario.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Selecione...", "Administrador", "Médico", "Recepcionista" }));
+        jComboBoxTipoUsuario.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Selecione", "Administrador", "Médico", "Recepcionista" }));
 
         jButtonNovoUsuario.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/new-file_40454.png"))); // NOI18N
         jButtonNovoUsuario.setText("Novo");
@@ -82,35 +156,72 @@ public class FormUsuario extends javax.swing.JFrame {
 
         jButtonSalvarUsuario.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/save_file_disk_open_searsh_loading_clipboard_1513.png"))); // NOI18N
         jButtonSalvarUsuario.setText("Salvar");
+        jButtonSalvarUsuario.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonSalvarUsuarioActionPerformed(evt);
+            }
+        });
 
         jButtonAlterarUsuario.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/edit-file256_25239.png"))); // NOI18N
-        jButtonAlterarUsuario.setText("Alterar");
+        jButtonAlterarUsuario.setText("Editar");
+        jButtonAlterarUsuario.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonAlterarUsuarioActionPerformed(evt);
+            }
+        });
 
         jButtonExcluirUsuario.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/document_delete_256_icon-icons.com_75995.png"))); // NOI18N
         jButtonExcluirUsuario.setText("Excluir");
 
         jButtonCancelarUsuario.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/cancel_stop_exit_1583.png"))); // NOI18N
         jButtonCancelarUsuario.setText("Cancelar");
+        jButtonCancelarUsuario.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonCancelarUsuarioActionPerformed(evt);
+            }
+        });
 
         jButtonPesquisarUsuario.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/preview_search_find_locate_1551.png"))); // NOI18N
         jButtonPesquisarUsuario.setText("Pesquisar");
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        jTableUsuarios.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
+                {},
+                {},
+                {},
+                {}
             },
             new String [] {
-                "Title 1", "Title 2", "Title 3", "Title 4"
+
             }
         ));
-        jScrollPane1.setViewportView(jTable1);
+        jTableUsuarios.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jTableUsuariosMouseClicked(evt);
+            }
+        });
+        jScrollPane1.setViewportView(jTableUsuarios);
 
-        jLabel8.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        jLabelFoto.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        jLabelFoto.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        jLabelFoto.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabelFotoMouseClicked(evt);
+            }
+        });
 
-        jButton1.setText("Carregar Foto");
+        jButtonFoto.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/camera.png"))); // NOI18N
+        jButtonFoto.setText("Foto");
+        jButtonFoto.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonFotoActionPerformed(evt);
+            }
+        });
+
+        jTextFieldCod_Usuario.setEditable(false);
+        jTextFieldCod_Usuario.setEnabled(false);
+
+        jLabel2.setText("Codigo:");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -122,52 +233,63 @@ public class FormUsuario extends javax.swing.JFrame {
                     .addComponent(jScrollPane1)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addComponent(jLabel3)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jTextFieldUsuario, javax.swing.GroupLayout.PREFERRED_SIZE, 273, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(18, 18, 18)
-                                .addComponent(jLabel6)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jComboBoxTipoUsuario, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                                 .addComponent(jTextFieldPesquisar)
                                 .addGap(17, 17, 17)
                                 .addComponent(jButtonPesquisarUsuario))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                .addGroup(jPanel1Layout.createSequentialGroup()
-                                    .addComponent(jButtonNovoUsuario)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(jButtonSalvarUsuario)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(jButtonCancelarUsuario)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(jButtonAlterarUsuario)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(jButtonExcluirUsuario, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                .addGroup(jPanel1Layout.createSequentialGroup()
-                                    .addComponent(jLabel4)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                    .addComponent(jPasswordFieldSenhaUsuario, javax.swing.GroupLayout.PREFERRED_SIZE, 158, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addGap(24, 24, 24)
-                                    .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 112, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                    .addComponent(jPasswordFieldConfirmeSenha, javax.swing.GroupLayout.PREFERRED_SIZE, 151, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                        .addGap(18, 18, 18)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 139, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel8, javax.swing.GroupLayout.PREFERRED_SIZE, 139, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(jLabel3)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jTextFieldNomeUsuario, javax.swing.GroupLayout.PREFERRED_SIZE, 273, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)
+                                .addComponent(jLabel6)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jComboBoxTipoUsuario, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(jLabel2)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(jTextFieldCod_Usuario, javax.swing.GroupLayout.PREFERRED_SIZE, 67, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(0, 0, Short.MAX_VALUE))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                                .addGap(0, 0, Short.MAX_VALUE)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                                        .addComponent(jButtonNovoUsuario)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(jButtonSalvarUsuario)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(jButtonCancelarUsuario)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(jButtonAlterarUsuario)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(jButtonExcluirUsuario, javax.swing.GroupLayout.PREFERRED_SIZE, 99, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                                        .addComponent(jLabel4)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                        .addComponent(jPasswordFieldSenhaUsuario, javax.swing.GroupLayout.PREFERRED_SIZE, 158, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(24, 24, 24)
+                                        .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 112, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(jPasswordFieldConfirmeSenha, javax.swing.GroupLayout.PREFERRED_SIZE, 151, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(jLabelFoto, javax.swing.GroupLayout.DEFAULT_SIZE, 139, Short.MAX_VALUE)
+                            .addComponent(jButtonFoto, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
                 .addGap(139, 139, 139))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(19, 19, 19)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(9, 9, 9)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jTextFieldCod_Usuario, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel2))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel3)
-                            .addComponent(jTextFieldUsuario, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jTextFieldNomeUsuario, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel6)
                             .addComponent(jComboBoxTipoUsuario, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(18, 18, 18)
@@ -176,27 +298,29 @@ public class FormUsuario extends javax.swing.JFrame {
                             .addComponent(jPasswordFieldSenhaUsuario, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel5)
                             .addComponent(jPasswordFieldConfirmeSenha, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jButtonNovoUsuario)
                             .addComponent(jButtonSalvarUsuario)
                             .addComponent(jButtonCancelarUsuario)
                             .addComponent(jButtonAlterarUsuario)
-                            .addComponent(jButtonExcluirUsuario)))
-                    .addComponent(jLabel8, javax.swing.GroupLayout.PREFERRED_SIZE, 116, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jTextFieldPesquisar)
-                        .addComponent(jButtonPesquisarUsuario)))
-                .addGap(18, 18, 18)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 199, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(15, Short.MAX_VALUE))
+                            .addComponent(jButtonExcluirUsuario))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jTextFieldPesquisar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jButtonPesquisarUsuario)))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jLabelFoto, javax.swing.GroupLayout.PREFERRED_SIZE, 134, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButtonFoto)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 179, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(42, Short.MAX_VALUE))
         );
 
         getContentPane().add(jPanel1);
-        jPanel1.setBounds(20, 40, 680, 410);
+        jPanel1.setBounds(20, 40, 680, 420);
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         jLabel1.setText("Cadastro de Usuários");
@@ -206,8 +330,10 @@ public class FormUsuario extends javax.swing.JFrame {
         jLabel7.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/Background.jpg"))); // NOI18N
         getContentPane().add(jLabel7);
         jLabel7.setBounds(0, -30, 730, 560);
+        getContentPane().add(jTextFieldCaminhoFoto);
+        jTextFieldCaminhoFoto.setBounds(510, 10, 131, 20);
 
-        setSize(new java.awt.Dimension(729, 501));
+        setSize(new java.awt.Dimension(729, 514));
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
@@ -217,7 +343,241 @@ public class FormUsuario extends javax.swing.JFrame {
 
     private void jButtonNovoUsuarioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonNovoUsuarioActionPerformed
         
+          flag=1;
+        
+       jButtonSalvarUsuario.setEnabled(true);
+       jButtonCancelarUsuario.setEnabled(true);
+       jTextFieldNomeUsuario.setEnabled(true);
+       jPasswordFieldSenhaUsuario.setEnabled(true);
+       jPasswordFieldConfirmeSenha.setEnabled(true);
+       jComboBoxTipoUsuario.setEnabled(true);
+       jTextFieldCod_Usuario.setText("");
+       jTextFieldNomeUsuario.setText("");
+       jPasswordFieldSenhaUsuario.setText("");
+       jPasswordFieldConfirmeSenha.setText("");
+       jComboBoxTipoUsuario.setSelectedIndex(0);
+       jButtonPesquisarUsuario.setEnabled(false);
+       jButtonNovoUsuario.setEnabled(false);
     }//GEN-LAST:event_jButtonNovoUsuarioActionPerformed
+
+    private void jLabelFotoMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabelFotoMouseClicked
+       
+    }//GEN-LAST:event_jLabelFotoMouseClicked
+
+    private void jButtonSalvarUsuarioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonSalvarUsuarioActionPerformed
+        
+         if(jTextFieldNomeUsuario.getText().isEmpty()){
+            JOptionPane.showMessageDialog(rootPane, "preencha o campo nome do usuario");
+        
+        jButtonCancelarUsuario.setEnabled(true);
+        jButtonSalvarUsuario.setEnabled(true);
+        jButtonNovoUsuario.setEnabled(false);
+        jButtonPesquisarUsuario.setEnabled(true);
+        
+        jTextFieldNomeUsuario.requestFocus();
+        
+         }else if(jPasswordFieldSenhaUsuario.getText().isEmpty()) {
+             JOptionPane.showMessageDialog(rootPane, "preencha o campo Senha");
+             
+             jButtonCancelarUsuario.setEnabled(true);
+             jButtonSalvarUsuario.setEnabled(true);
+             jButtonNovoUsuario.setEnabled(false);
+             jButtonPesquisarUsuario.setEnabled(true);
+        
+        jPasswordFieldSenhaUsuario.requestFocus();
+        
+        }else if(jComboBoxTipoUsuario.getSelectedItem().equals("Selecione")){
+            
+            
+        JOptionPane.showMessageDialog(rootPane, "Selecione o tipo de Usuario");
+            
+
+        jButtonCancelarUsuario.setEnabled(true);
+        jButtonSalvarUsuario.setEnabled(true);
+        jButtonNovoUsuario.setEnabled(false);
+        jButtonPesquisarUsuario.setEnabled(true);
+        
+        jComboBoxTipoUsuario.requestFocus();
+            
+        }else{
+             if(flag == 1){
+             
+        usuario.setNome_usuario(jTextFieldNomeUsuario.getText());
+        usuario.setSenha_usuario(jPasswordFieldSenhaUsuario.getText());
+        usuario.setTipo_usuario((String) jComboBoxTipoUsuario.getSelectedItem());
+ 
+      
+        control.salvar(usuario);
+        preencherTabela(sql);
+        
+        Path origem = Paths.get(jTextFieldCaminhoFoto.getText());
+        Path destino = Paths.get("C:/Users/"+nomeUser+"/Documents/NetBeansProjects/ProjetoClinica/Uploads/"+usuario.getNome_usuario() + ".jpg");
+		
+        try {
+            Files.copy(origem, destino, StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException ex) {
+            
+            JOptionPane.showMessageDialog(rootPane, "Erro ao Carregar a imegem selecionada");
+            ex.printStackTrace();
+        }
+
+		
+                
+        
+        jTextFieldNomeUsuario.setText("");
+        jPasswordFieldSenhaUsuario.setText("");
+        jPasswordFieldConfirmeSenha.setText("");
+        jComboBoxTipoUsuario.setSelectedIndex(0);
+        jComboBoxTipoUsuario.setEnabled(false);
+        jButtonCancelarUsuario.setEnabled(false);
+        jButtonSalvarUsuario.setEnabled(false);
+        jTextFieldNomeUsuario.setEnabled(false);
+        jPasswordFieldSenhaUsuario.setEnabled(false);
+        jPasswordFieldConfirmeSenha.setEnabled(false);
+        jComboBoxTipoUsuario.setEnabled(false);
+        jButtonNovoUsuario.setEnabled(true);
+        jButtonPesquisarUsuario.setEnabled(true);
+                
+                
+             } else {
+            
+            usuario.setCod_usuario(Long.parseLong(jTextFieldCod_Usuario.getText()));
+            usuario.setNome_usuario(jTextFieldNomeUsuario.getText());
+            usuario.setSenha_usuario(jPasswordFieldSenhaUsuario.getText());
+            usuario.setTipo_usuario((String) jComboBoxTipoUsuario.getSelectedItem()); 
+            
+            control.Editar(usuario);
+           preencherTabela(sql);
+           
+            jTextFieldNomeUsuario.setText("");
+        jPasswordFieldSenhaUsuario.setText("");
+        jPasswordFieldConfirmeSenha.setText("");
+        jComboBoxTipoUsuario.setSelectedIndex(0);
+        jComboBoxTipoUsuario.setEnabled(false);
+        jButtonCancelarUsuario.setEnabled(false);
+        jButtonSalvarUsuario.setEnabled(false);
+        jTextFieldNomeUsuario.setEnabled(false);
+        jPasswordFieldSenhaUsuario.setEnabled(false);
+        jPasswordFieldConfirmeSenha.setEnabled(false);
+        jComboBoxTipoUsuario.setEnabled(false);
+        jButtonNovoUsuario.setEnabled(true);
+        jButtonPesquisarUsuario.setEnabled(true);
+        
+                 
+             }
+        }
+      
+     
+        
+    }//GEN-LAST:event_jButtonSalvarUsuarioActionPerformed
+
+    private void jButtonFotoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonFotoActionPerformed
+         JFileChooser arquivo = new JFileChooser();
+        int janela = arquivo.showOpenDialog(null);
+        
+        if(janela==JFileChooser.APPROVE_OPTION){
+            File file = arquivo.getSelectedFile();
+            jTextFieldCaminhoFoto.setText(String.valueOf(file));
+            Image foto = getToolkit().getImage(jTextFieldCaminhoFoto.getText());
+            jLabelFoto.setIcon(new ImageIcon(foto.getScaledInstance(jLabelFoto.getWidth(), jLabelFoto.getHeight(), Image.SCALE_DEFAULT)));
+           
+        }
+    }//GEN-LAST:event_jButtonFotoActionPerformed
+
+    private void jButtonAlterarUsuarioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonAlterarUsuarioActionPerformed
+        flag = 2;
+       jButtonSalvarUsuario.setEnabled(true);
+       jButtonCancelarUsuario.setEnabled(true);
+       jTextFieldNomeUsuario.setEnabled(true);
+       jPasswordFieldSenhaUsuario.setEnabled(true);
+       jPasswordFieldConfirmeSenha.setEnabled(true);
+       jComboBoxTipoUsuario.setEnabled(true);
+       jButtonAlterarUsuario.setEnabled(false);
+       jButtonNovoUsuario.setEnabled(false);
+       jButtonExcluirUsuario.setEnabled(false);
+        jButtonPesquisarUsuario.setEnabled(false);
+    }//GEN-LAST:event_jButtonAlterarUsuarioActionPerformed
+
+    private void jTableUsuariosMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTableUsuariosMouseClicked
+         if (evt.getClickCount() > 1) {  
+            
+        int resp = JOptionPane.showConfirmDialog(null, "Deseja Editar esse Campo");
+        
+        if(resp == JOptionPane.YES_OPTION){
+       
+        
+            flag = 2;
+            
+       jButtonSalvarUsuario.setEnabled(true);
+       jButtonCancelarUsuario.setEnabled(true);
+       jTextFieldNomeUsuario.setEnabled(true);
+       jPasswordFieldSenhaUsuario.setEnabled(true);
+       jPasswordFieldConfirmeSenha.setEnabled(true);
+       jComboBoxTipoUsuario.setEnabled(true);
+       jButtonAlterarUsuario.setEnabled(false);
+       jButtonNovoUsuario.setEnabled(false);
+       jButtonExcluirUsuario.setEnabled(false);
+       jButtonPesquisarUsuario.setEnabled(true);
+        }
+            
+            } else { 
+        
+        
+        String nome_usuario = ""+jTableUsuarios.getValueAt(jTableUsuarios.getSelectedRow(), 1);//Vai pegar o objeto selecionado e salvar na string nome_medico
+        conex.conexao(); // abre a conexão
+        
+
+        
+           
+      
+          // jLabelFoto.setIcon(new javax.swing.ImageIcon(getClass().getResource("C:/Users/"+nomeUser+"/Documents/NetBeansProjects/ProjetoClinica/Uploads/"+usuario.getNome_usuario() + ".jpg")));
+			
+        
+        conex.executaSql("select * from usuarios where nome_usuario='"+nome_usuario+"'");
+            
+        try {
+            conex.rs.first(); //filtra o primeiro resultado do banco
+            jTextFieldCod_Usuario.setText(String.valueOf(conex.rs.getInt("cod_usuario")));
+            jTextFieldNomeUsuario.setText(conex.rs.getString("nome_usuario"));
+            jPasswordFieldSenhaUsuario.setText(conex.rs.getString("senha_usuario"));
+            jComboBoxTipoUsuario.setSelectedItem(conex.rs.getString("tipo_usuario"));
+            jTextFieldNomeUsuario.setEnabled(false);
+            jPasswordFieldSenhaUsuario.setEnabled(false);
+            jComboBoxTipoUsuario.setEnabled(false);
+            jButtonSalvarUsuario.setEnabled(false);
+            
+            
+            
+            
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(rootPane, "Erro ao selecionar dados /n"+ex);
+            ex.printStackTrace();
+        }
+        
+        conex.desconecta();
+        jButtonAlterarUsuario.setEnabled(true);
+        jButtonExcluirUsuario.setEnabled(true);
+        jButtonCancelarUsuario.setEnabled(false);
+        }
+    }//GEN-LAST:event_jTableUsuariosMouseClicked
+
+    private void jButtonCancelarUsuarioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonCancelarUsuarioActionPerformed
+        jTextFieldCod_Usuario.setText("");
+        jTextFieldNomeUsuario.setText("");
+        jPasswordFieldSenhaUsuario.setText("");
+        jPasswordFieldConfirmeSenha.setText("");
+        jComboBoxTipoUsuario.setSelectedIndex(0);
+        jButtonCancelarUsuario.setEnabled(false);
+        jButtonSalvarUsuario.setEnabled(false);
+        jButtonExcluirUsuario.setEnabled(false);
+        jTextFieldNomeUsuario.setEnabled(false);
+        jPasswordFieldSenhaUsuario.setEnabled(false);
+        jPasswordFieldConfirmeSenha.setEnabled(false);
+        jComboBoxTipoUsuario.setEnabled(false);
+        jButtonNovoUsuario.setEnabled(true);
+        jButtonAlterarUsuario.setEnabled(false);
+        jButtonPesquisarUsuario.setEnabled(true);
+    }//GEN-LAST:event_jButtonCancelarUsuarioActionPerformed
 
     /**
      * @param args the command line arguments
@@ -250,32 +610,36 @@ public class FormUsuario extends javax.swing.JFrame {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 new FormUsuario().setVisible(true);
+                
             }
         });
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
     private javax.swing.JButton jButtonAlterarUsuario;
     private javax.swing.JButton jButtonCancelarUsuario;
     private javax.swing.JButton jButtonExcluirUsuario;
+    private javax.swing.JButton jButtonFoto;
     private javax.swing.JButton jButtonNovoUsuario;
     private javax.swing.JButton jButtonPesquisarUsuario;
     private javax.swing.JButton jButtonSalvarUsuario;
     private javax.swing.JComboBox<String> jComboBoxTipoUsuario;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
-    private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabelFoto;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPasswordField jPasswordFieldConfirmeSenha;
     private javax.swing.JPasswordField jPasswordFieldSenhaUsuario;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTable jTable1;
+    private javax.swing.JTable jTableUsuarios;
+    private javax.swing.JTextField jTextFieldCaminhoFoto;
+    private javax.swing.JTextField jTextFieldCod_Usuario;
+    private javax.swing.JTextField jTextFieldNomeUsuario;
     private javax.swing.JTextField jTextFieldPesquisar;
-    private javax.swing.JTextField jTextFieldUsuario;
     // End of variables declaration//GEN-END:variables
 }

@@ -213,7 +213,8 @@ public class TelaPrincipal extends javax.swing.JFrame {
     }//GEN-LAST:event_jButtonCadMedicosActionPerformed
 
     private void jButtonCadPacientesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonCadPacientesActionPerformed
-        // TODO add your handling code here:
+        FormUsuario formUsuario = new FormUsuario();
+        formUsuario.setVisible(true);
     }//GEN-LAST:event_jButtonCadPacientesActionPerformed
 
     private void jButtonCadEnfermeiras1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonCadEnfermeiras1ActionPerformed
