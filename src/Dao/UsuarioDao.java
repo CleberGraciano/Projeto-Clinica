@@ -83,6 +83,23 @@ public class UsuarioDao {
         conex.desconecta();
         
     }
+    
+     public void Excluir(Usuario usuario){
+        conex.conexao();
+        
+        try {
+            PreparedStatement pst = conex.con.prepareStatement("delete from usuarios where cod_usuario=?");
+            pst.setLong(1, usuario.getCodigo());
+            pst.execute();
+            JOptionPane.showMessageDialog(null, "Dados  excluidos com sucesso!!!");
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Erro ao tentar Excluir dados /n!!!"+ex);
+            ex.printStackTrace();
+        }
+        
+        conex.desconecta();
+        
+    }
         
     
     

@@ -314,7 +314,7 @@ public class FormMedico extends javax.swing.JFrame {
        jComboBoxEspecializacao.setSelectedIndex(0);
        jButtonPesquisar.setEnabled(false);
        jButtonNovo.setEnabled(false);
-       
+
        
     }//GEN-LAST:event_jButtonNovoActionPerformed
 

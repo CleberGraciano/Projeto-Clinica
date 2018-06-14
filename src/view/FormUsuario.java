@@ -172,6 +172,11 @@ public class FormUsuario extends javax.swing.JFrame {
 
         jButtonExcluirUsuario.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/document_delete_256_icon-icons.com_75995.png"))); // NOI18N
         jButtonExcluirUsuario.setText("Excluir");
+        jButtonExcluirUsuario.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonExcluirUsuarioActionPerformed(evt);
+            }
+        });
 
         jButtonCancelarUsuario.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/cancel_stop_exit_1583.png"))); // NOI18N
         jButtonCancelarUsuario.setText("Cancelar");
@@ -212,6 +217,11 @@ public class FormUsuario extends javax.swing.JFrame {
 
         jButtonFoto.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/camera.png"))); // NOI18N
         jButtonFoto.setText("Foto");
+        jButtonFoto.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jButtonFotoMouseClicked(evt);
+            }
+        });
         jButtonFoto.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButtonFotoActionPerformed(evt);
@@ -320,7 +330,7 @@ public class FormUsuario extends javax.swing.JFrame {
         );
 
         getContentPane().add(jPanel1);
-        jPanel1.setBounds(20, 40, 680, 420);
+        jPanel1.setBounds(20, 40, 670, 420);
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         jLabel1.setText("Cadastro de Usuários");
@@ -333,7 +343,7 @@ public class FormUsuario extends javax.swing.JFrame {
         getContentPane().add(jTextFieldCaminhoFoto);
         jTextFieldCaminhoFoto.setBounds(510, 10, 131, 20);
 
-        setSize(new java.awt.Dimension(729, 514));
+        setSize(new java.awt.Dimension(721, 514));
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
@@ -411,7 +421,7 @@ public class FormUsuario extends javax.swing.JFrame {
         preencherTabela(sql);
         
         Path origem = Paths.get(jTextFieldCaminhoFoto.getText());
-        Path destino = Paths.get("C:/Users/"+nomeUser+"/Documents/NetBeansProjects/ProjetoClinica/Uploads/"+usuario.getNome_usuario() + ".jpg");
+        Path destino = Paths.get("C:/Users/"+nomeUser+"/Documents/NetBeansProjects/ProjetoClinica/Uploads/"+usuario.getNome_usuario()+ ".jpg");
 		
         try {
             Files.copy(origem, destino, StandardCopyOption.REPLACE_EXISTING);
@@ -578,6 +588,67 @@ public class FormUsuario extends javax.swing.JFrame {
         jButtonAlterarUsuario.setEnabled(false);
         jButtonPesquisarUsuario.setEnabled(true);
     }//GEN-LAST:event_jButtonCancelarUsuarioActionPerformed
+
+    private void jButtonExcluirUsuarioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonExcluirUsuarioActionPerformed
+         int resposta = 0;
+        
+        
+         resposta = JOptionPane.showConfirmDialog(rootPane, "Deseja Realmente Excluir ?");
+         
+         if(resposta == JOptionPane.YES_OPTION){
+      
+        usuario.setCodigo(Long.parseLong(jTextFieldCod_Usuario.getText()));//Pega o codigo por parametro 
+        control.Excluir(usuario);//Eclui conforme o codigo selecionado
+        preencherTabela(sql);//Atualiaza a tabela com os dados
+        
+        jTextFieldCod_Usuario.setText("");
+        jTextFieldNomeUsuario.setText("");
+        jPasswordFieldSenhaUsuario.setText("");
+        jPasswordFieldConfirmeSenha.setText("");
+        jComboBoxTipoUsuario.setSelectedIndex(0);
+        jComboBoxTipoUsuario.setEnabled(false);
+        
+        jButtonCancelarUsuario.setEnabled(false);
+        jButtonSalvarUsuario.setEnabled(false);
+        jButtonExcluirUsuario.setEnabled(false);
+        jTextFieldNomeUsuario.setEnabled(false);
+        jPasswordFieldSenhaUsuario.setEnabled(false);
+        jPasswordFieldConfirmeSenha.setEnabled(false);
+        jComboBoxTipoUsuario.setEnabled(false);
+        jButtonNovoUsuario.setEnabled(true);
+        jButtonAlterarUsuario.setEnabled(false);
+        jButtonPesquisarUsuario.setEnabled(true);
+    
+      
+        
+         }else if(resposta == JOptionPane.NO_OPTION) {
+         jButtonAlterarUsuario.setEnabled(false);
+        jButtonExcluirUsuario.setEnabled(true);
+        jButtonCancelarUsuario.setEnabled(true);
+        jButtonNovoUsuario.setEnabled(false);
+        jButtonSalvarUsuario.setEnabled(false);
+        jTextFieldNomeUsuario.setEnabled(false);
+        jPasswordFieldSenhaUsuario.setEnabled(false);
+        jPasswordFieldConfirmeSenha.setEnabled(false);
+        jComboBoxTipoUsuario.setEnabled(false);
+        jButtonAlterarUsuario.setEnabled(true);
+         }else if(resposta == JOptionPane.CANCEL_OPTION) {
+         jButtonAlterarUsuario.setEnabled(false);
+        jButtonExcluirUsuario.setEnabled(true);
+        jButtonCancelarUsuario.setEnabled(true);
+        jButtonNovoUsuario.setEnabled(false);
+        jButtonSalvarUsuario.setEnabled(false);
+        jTextFieldNomeUsuario.setEnabled(false);
+        jPasswordFieldSenhaUsuario.setEnabled(false);
+        jPasswordFieldConfirmeSenha.setEnabled(false);
+        jComboBoxTipoUsuario.setEnabled(false);
+        jButtonAlterarUsuario.setEnabled(true);
+         }
+    }//GEN-LAST:event_jButtonExcluirUsuarioActionPerformed
+
+    private void jButtonFotoMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButtonFotoMouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButtonFotoMouseClicked
 
     /**
      * @param args the command line arguments
